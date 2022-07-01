@@ -2,7 +2,7 @@ version: 2.1
 
 # Orb - An "application" that executes as part of a job on CircleCI
 orbs: 
-  slack: circleci/slack@4.10.1
+  slack: circleci/slack@4.1
 
 
 jobs:

@@ -113,7 +113,6 @@ jobs:
             # npm audit fix --force
             npm audit --audit-level=critical
       - slack/notify:
-          channel: C03N2TE2R27
           event: fail
           template: basic_fail_1
 

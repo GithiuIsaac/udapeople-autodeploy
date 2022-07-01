@@ -1,5 +1,10 @@
 version: 2.1
 
+# Orb - An "application" that executes as part of a job on CircleCI
+orbs: 
+  slack: circleci/slack@4.10.1
+
+
 jobs:
 # Compile the frontend
   build-frontend:
@@ -107,6 +112,9 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
 
 workflows:

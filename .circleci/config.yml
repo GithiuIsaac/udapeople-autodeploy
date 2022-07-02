@@ -375,7 +375,7 @@ jobs:
             --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}/api/status"
-            $API_URL/api/status
+            echo $API_URL/api/status
             # curl -s http://google.com
             # curl "${API_URL}/api/status"
             sleep 30

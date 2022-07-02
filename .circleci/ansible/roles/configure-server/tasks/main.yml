@@ -1,0 +1,31 @@
+---
+  # Update/upgrade packages.
+- name: 'Update packages'
+  become: true
+  apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 86400
+  
+  # Remove unnecessary dependencies  
+- name: 'Remove dependencies no longer required'
+  become: true
+  apt:
+    autoremove: yes
+
+  # Install nodejs, npm
+- name: install dependencies
+  become: yes
+  apt:
+    name: ['nodejs', 'npm']
+    state: latest
+    update_cache: yes
+
+  # Install pm2  
+- name: install pm2
+  become: true
+  npm:
+    name: pm2
+    global: yes
+    state: present
+    production: yes

@@ -186,38 +186,41 @@ jobs:
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
-# # Job to execute Ansible Playbooks to configure the newly created infrastructure.
-#   configure-infrastructure:
-#     docker:
-#       # Supports Ansible
-#       - image: python:3.10-alpine3.16
-#     steps:
-#       # Checkout code from git
-#       - checkout
-#       # Add ssh keys with fingerprint
-#       - add_ssh_keys:
-#           fingerprints:
-#             - "08:2c:8b:0a:5f:2f:b4:3a:05:86:12:1b:25:16:21:6d"
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             apk add --update --no-cache tar gzip ansible aws-cli 
-#       # attach workspace
-#       - attach_workspace:
-#           at: ~/
-#       - restore_cache:
-#           keys: [backend-build]
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # Your code here
-#             exit 1
-#       - run:
-#           name: Configure server
-#           command: |
-#             # Your code here
-#             exit 1
-#       # Here's where you will add some code to rollback on failure      
+# Job to execute Ansible Playbooks to configure the newly created infrastructure.
+  configure-infrastructure:
+    docker:
+      # Supports Ansible
+      - image: python:3.10-alpine3.16
+    steps:
+      # Checkout code from git
+      - checkout
+      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints:
+            - "08:2c:8b:0a:5f:2f:b4:3a:05:86:12:1b:25:16:21:6d"
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update --no-cache tar gzip ansible aws-cli 
+      # attach workspace to have access to all needed files, e.g. inventory.txt
+      - attach_workspace:
+          at: ~/
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Configure server
+          command: |
+              cd .circleci/ansible
+              ansible-playbook -i inventory.txt configure-server.yml \
+              --key-file ~/.ssh/id_rsa_082c8b0a5f2fb43a0586121b2516216d
+      # save the backend back to workspace
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/backend
+      # Here's where you will add some code to rollback on failure
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}      
 
 
 workflows:
@@ -238,3 +241,5 @@ workflows:
           filters:
             branches:
               only: [master]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]

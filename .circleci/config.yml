@@ -375,7 +375,7 @@ jobs:
             # curl -s http://google.com
             # curl "${API_URL}/api/status"
             sleep 20
-            if curl -s "${API_URL}/api/status" | grep "ok"
+            if curl -s " http://google.com" | grep "ok"
             then
                 return 0
             else

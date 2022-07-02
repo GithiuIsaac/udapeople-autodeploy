@@ -360,7 +360,7 @@ jobs:
       - checkout
       # - install_awscli
       # - install_nodejs
-      # - run:
+      - run:
           name: Install dependencies
           command: |
             apk add --update --no-cache curl aws-cli tar gzip nodejs npm

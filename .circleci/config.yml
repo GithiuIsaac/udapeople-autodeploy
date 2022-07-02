@@ -1,5 +1,5 @@
 version: 2.1
-
+# aws cloudformation deploy --template-file cloudfront.yml --stack-name InitialStack --parameter-overrides WorkflowID=udapeople-19952306
 # Orb - An "application" that executes as part of a job on CircleCI
 orbs: 
   slack: circleci/slack@4.1
@@ -374,7 +374,8 @@ jobs:
             echo "${API_URL}"
             # curl -s http://google.com
             # curl "${API_URL}/api/status"
-            if curl "${API_URL}/api/status" | grep "ok"
+            sleep 20
+            if curl -s "${API_URL}/api/status" | grep "ok"
             then
                 return 0
             else

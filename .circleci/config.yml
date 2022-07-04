@@ -420,7 +420,7 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Fetch Workflow ID
+          name: Fetch & Backup Workflow ID
           command: |
             export OldWorkflowID=$(aws cloudformation \
                     list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
@@ -437,8 +437,8 @@ jobs:
               --stack-name InitialStack \
               --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:7} \
               --tags project=udapeople
-            echo Previous Workflow ID: ${OldWorkflowID}
-            echo Current Workflow ID: ${CIRCLE_WORKFLOW_ID:0:7}
+            echo Previous Workflow ID: $(curl --insecure https://kvdb.io/2AKWdi2EmvWwVyoYEQsov6/previous_id)
+            echo Current Workflow ID: $CIRCLE_WORKFLOW_ID:0:7
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -461,7 +461,7 @@ jobs:
                     list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
                     --no-paginate --output text)
             echo OldWorkflowID: $OldWorkflowID
-            echo WORKFLOW_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+            echo CIRCLE_WORKFLOW_ID: ${CIRCLE_WORKFLOW_ID:0:7}
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
                     --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
             echo Stack names: "${STACKS[@]}"
@@ -471,7 +471,10 @@ jobs:
       - run:
           name: Remove old stacks and files
           command: |
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            echo PreviousWorkflowID: $PreviousWorkflowID
+            echo Stack names: "${STACKS[@]}"
+            if [[ "${STACKS[@]}" =~ "${PreviousWorkflowID}" ]]
+            # if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"

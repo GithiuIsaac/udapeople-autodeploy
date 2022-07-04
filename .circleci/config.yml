@@ -468,8 +468,8 @@ jobs:
             if [[ "${STACKS[@]}" =~ "${PreviousWorkflowID}" ]]
             then
               aws s3 rm "s3://udapeople-${PreviousWorkflowID}" --recursive
-              aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
-              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+              aws cloudformation delete-stack --stack-name "udapeople-backend-${PreviousWorkflowID}"
+              aws cloudformation delete-stack --stack-name "udapeople-frontend-${PreviousWorkflowID}"
             else
               echo ---- No stacks to cleanup ---
             fi

@@ -445,7 +445,7 @@ jobs:
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
-
+# Clean up old files & stacks
   cleanup:
     docker:
       - image: amazon/aws-cli
@@ -467,13 +467,14 @@ jobs:
             echo PreviousWorkflowID: $PreviousWorkflowID 
             if [[ "${STACKS[@]}" =~ "${PreviousWorkflowID}" ]]
             then
-              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+              aws s3 rm "s3://udapeople-${PreviousWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+            else
+              echo ---- No stacks to cleanup ---
             fi
 
-
-
+# Define the workflow
 workflows:
   default:
     jobs:

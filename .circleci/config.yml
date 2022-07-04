@@ -246,21 +246,23 @@ jobs:
 # Runs db migrations so that new changes are applied
   run-migrations:
     docker:
-      - image: python:3.10-alpine3.16
+      # - image: python:3.10-alpine3.16
+      - image: cimg/node:13.8.0
     steps:
       - checkout
-      - run:
-          name: Install Dependencies
-          command: |
-            apk add --update --no-cache tar gzip nodejs npm aws-cli curl
       - restore_cache:
-          keys: [backend-build]      
+          keys: [backend-build]
+      - run:
+          name: Install AWS CLI
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install      
       - run:
           name: Run migrations
           command: |
             cd backend
             npm install
-            npm run build
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
       - run:
@@ -268,7 +270,7 @@ jobs:
           command: |
             if grep -q "has been executed successfully" ~/project/backend/migrations_dump.txt
             then
-              curl   -d '1'
+              curl https://kvdb.io/2AKWdi2EmvWwVyoYEQsov6/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
             fi
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -322,6 +324,8 @@ jobs:
       - image: python:3.10-alpine3.16
     steps:
       - checkout
+      - restore_cache:
+          keys: [backend-build]
       - add_ssh_keys:
           fingerprints:
             - '08:2c:8b:0a:5f:2f:b4:3a:05:86:12:1b:25:16:21:6d'
@@ -330,7 +334,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update --no-cache tar gzip nodejs npm tree aws-cli ansible  rsync
+            apk add --update --no-cache tar gzip nodejs npm aws-cli ansible bash openssh curl rsync
+            ansible --version
       - run:
           name: Deploy backend
           command: |
@@ -383,7 +388,7 @@ jobs:
             then
                 return 0
             else
-                return 0
+                return 1
             fi
       - run:
           name: Frontend smoke test.
@@ -393,9 +398,9 @@ jobs:
             if curl -s $URL | grep "Welcome"
             then
               # Change this to 0 after the job fails
-              exit  0
+              return  0
             else
-              exit  1
+              return  1
             fi
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -423,7 +428,7 @@ jobs:
             echo $OLD_WORKFLOW_ID >> ~/OldWorkflowID.txt
             cat ~/OldWorkflowID.txt
             curl https://kvdb.io/2AKWdi2EmvWwVyoYEQsov6/previous_id -d "${OLD_WORKFLOW_ID}"
-            
+
       - run:
           name: Update cloudfront distribution
           command: |  

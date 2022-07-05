@@ -471,7 +471,7 @@ jobs:
               aws cloudformation delete-stack --stack-name "udapeople-backend-${PreviousWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${PreviousWorkflowID}"
             else
-              echo ---- No stacks to cleanup ---
+              echo ---- No stacks to cleanup ----
             fi
 
 # Define the workflow
